@@ -1,0 +1,2 @@
+# Finni
+app fjr hackathone
