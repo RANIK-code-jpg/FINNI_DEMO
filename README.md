@@ -1,17 +1,49 @@
-# flutter_test1
+﻿# FINNI — Питомец Финни
 
-A new Flutter project.
+**FINNI** — мобильное Android-приложение для знакомства детей 7–11 лет с основами финансовой грамотности через заботу о виртуальном питомце.
 
-## Getting Started
+## Возможности демоверсии
 
-This project is a starting point for a Flutter application.
+- Виртуальный питомец и настройка его внешнего вида.
+- Управление игровым балансом и планирование бюджета.
+- Покупки за виртуальную валюту.
+- Финансовые цели и накопления.
+- Обучающие задания.
+- Отслеживание прогресса и стадий развития питомца.
 
-A few resources to get you started if this is your first Flutter project:
+Доступность отдельных функций зависит от текущей версии демо.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Технологии
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Flutter
+- Dart
+- Android
+
+## Запуск из исходного кода
+
+Установите Flutter SDK и Android SDK, затем в корневой папке проекта выполните:
+
+```bash
+flutter pub get
+flutter run
+```
+
+## Сборка APK
+
+Для создания релизной сборки выполните:
+
+```bash
+flutter build apk --release
+```
+
+APK появится по пути:
+
+`build/app/outputs/flutter-apk/app-release.apk`
+
+## Статус
+
+Демонстрационная версия. Проект предназначен для апробации игровых механик обучения финансовой грамотности.
+
+## Безопасность
+
+В приложении используется игровая валюта. Она не является реальными денежными средствами.
