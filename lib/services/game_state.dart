@@ -5,6 +5,9 @@ import 'storage_service.dart';
 import 'sound_service.dart';
 
 class GameState extends ChangeNotifier {
+  // Эта сборка предназначена для быстрого тестирования жюри.
+  static const bool demoMode = true;
+
   final StorageService storage = StorageService();
 
   // ==========================================================
@@ -24,7 +27,7 @@ class GameState extends ChangeNotifier {
   // ==========================================================
 
   // Основной баланс игрока.
-  int balance = 500;
+  int balance = 1000000;
 
   // Накопления на финансовую цель.
   //
@@ -48,8 +51,9 @@ class GameState extends ChangeNotifier {
   int? lastPetStateUpdateAt;
 
   static const int petStateIntervalMinutes = 5;
-  static const int hungerDecayPerInterval = 5;
-  static const int funDecayPerInterval = 3;
+  // В демо голод и настроение убывают в 10 раз быстрее.
+  static const int hungerDecayPerInterval = 50;
+  static const int funDecayPerInterval = 30;
 
   // ==========================================================
   // КОПИЛКА
@@ -357,6 +361,80 @@ class GameState extends ChangeNotifier {
     }
 
     return currentLevel - completedGoals.length;
+  }
+
+  // ==========================================================
+  // ДЕМО-РЕЖИМ
+  // ==========================================================
+
+  // При каждом запуске возвращаем тестовый баланс, чтобы жюри
+  // могло проверять магазин и покупки без длительного накопления.
+  Future<void> activateDemoMode() async {
+    if (!demoMode) {
+      return;
+    }
+
+    balance = 1000000;
+    await save();
+    notifyListeners();
+  }
+
+  // Переключает демо-уровень назад: 3 -> 2 -> 1 -> 3.
+  void retreatDemoLevel() {
+    if (!demoMode) {
+      return;
+    }
+
+    final targetLevel = currentLevel <= 1 ? 3 : currentLevel - 1;
+
+    // Для демонстрации задаём понятное и предсказуемое состояние уровня.
+    completedGoals.clear();
+    goalCompleted = false;
+
+    if (targetLevel == 1) {
+      developmentPoints = 0;
+    } else if (targetLevel == 2) {
+      completedGoals.add('Демо-цель 1');
+      developmentPoints = 60;
+    } else {
+      completedGoals.addAll(['Демо-цель 1', 'Демо-цель 2']);
+      developmentPoints = 130;
+    }
+
+    level = currentLevel;
+    save();
+    notifyListeners();
+  }
+
+  // Циклически переключает стадии 1 -> 2 -> 3 -> 1.
+  void advanceDemoLevel() {
+    if (!demoMode) {
+      return;
+    }
+
+    if (currentLevel >= 3) {
+      developmentPoints = 0;
+      completedGoals.clear();
+      goalCompleted = false;
+      goalProgress = savings;
+    } else if (currentLevel == 1) {
+      if (!completedGoals.contains('Демо-цель 1')) {
+        completedGoals.add('Демо-цель 1');
+      }
+      developmentPoints = 60;
+    } else {
+      if (!completedGoals.contains('Демо-цель 1')) {
+        completedGoals.add('Демо-цель 1');
+      }
+      if (!completedGoals.contains('Демо-цель 2')) {
+        completedGoals.add('Демо-цель 2');
+      }
+      developmentPoints = 130;
+    }
+
+    level = currentLevel;
+    save();
+    notifyListeners();
   }
 
   // ==========================================================
@@ -1384,9 +1462,13 @@ class GameState extends ChangeNotifier {
   bool isTaskUnlocked(
     int taskNumber,
   ) {
-    if (taskNumber < 1 ||
-        taskNumber > 18) {
+    if (taskNumber < 1 || taskNumber > 18) {
       return false;
+    }
+
+    // В демо-версии жюри может открывать любое задание.
+    if (demoMode) {
+      return true;
     }
 
     if (taskNumber == 1 ||
@@ -1395,9 +1477,7 @@ class GameState extends ChangeNotifier {
       return true;
     }
 
-    return isTaskCompleted(
-      taskNumber - 1,
-    );
+    return isTaskCompleted(taskNumber - 1);
   }
 
   int taskReward(
@@ -1534,7 +1614,7 @@ class GameState extends ChangeNotifier {
   Future<void> resetProgress() async {
     // Сбрасываем именно игровой прогресс,
     // но сохраняем локальный профиль Финни.
-    balance = 500;
+    balance = 1000000;
     savings = 0;
     food = 0;
     fishFood = 0;
@@ -1598,7 +1678,7 @@ class GameState extends ChangeNotifier {
     petColor = 0;
     petVariant = 0;
 
-    balance = 500;
+    balance = 1000000;
     savings = 0;
     food = 0;
     fishFood = 0;

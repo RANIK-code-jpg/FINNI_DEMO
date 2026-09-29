@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import 'services/game_state.dart';
@@ -24,9 +25,14 @@ import 'screens/progress/growth_stages_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
   final gameState = GameState();
 
   await gameState.load();
+  await gameState.activateDemoMode();
 
   runApp(
     MyApp(
@@ -754,6 +760,42 @@ class _MyHomePageState
                                   gameState:
                                       gameState,
                                 ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(width: 6),
+
+                        // Откат уровня назад для демонстрации.
+                        _ToolbarIconButton(
+                          icon: Icons.skip_previous_rounded,
+                          onTap: () {
+                            gameState.retreatDemoLevel();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Демо: уровень ${gameState.currentLevel}',
+                                ),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(width: 6),
+
+                        // Быстрый переход на следующий уровень для демонстрации.
+                        _ToolbarIconButton(
+                          icon: Icons.skip_next_rounded,
+                          onTap: () {
+                            gameState.advanceDemoLevel();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Демо: уровень ${gameState.currentLevel}',
+                                ),
+                                duration: const Duration(seconds: 1),
                               ),
                             );
                           },
